@@ -8,7 +8,8 @@ pub enum Prompt {
         promptchar: String,
         text_color: (u8, u8, u8),
         color: (u8, u8, u8),
-        double: bool,
+        auto_suggest_color: (u8, u8, u8),
+        double: bool
     },
     // TODO: Add more styles
 }
@@ -26,17 +27,20 @@ impl Prompt {
     pub fn new(data: &Config) -> Self {
         let mut color = (0, 102, 204);
         let mut text_color = (255, 255, 255);
+        let mut auto_suggest_color = (0, 102, 204);
         let mut promptchar = String::from("➤");
         let mut double = false;
         let rt = Self::Classic {
             promptchar: promptchar.clone(),
             text_color,
             color,
+            auto_suggest_color,
             double,
         };
         if let Some(prompt) = &data.prompt {
             if let Some(x) = prompt.color {color = (x[0], x[1], x[2]);}
             if let Some(x) = prompt.text_color {text_color = (x[0], x[1], x[2]);}
+            if let Some(x) = prompt.auto_suggest_color {text_color = (x[0], x[1], x[2]);}
             if let Some(x) = prompt.double {double = x;}
             if let Some(x) = &prompt.promptchar {promptchar = x.clone();}
             if let Some(x) = &prompt.style {
@@ -45,12 +49,14 @@ impl Prompt {
                         promptchar,
                         text_color,
                         color,
+                        auto_suggest_color,
                         double,
                     },
                     _ => Self::Classic {
                         promptchar,
                         text_color,
                         color,
+                        auto_suggest_color,
                         double,
                     },
                 };
@@ -64,7 +70,7 @@ impl Prompt {
     pub fn gen_prompt(&self) -> String {
         let mut current_dir = std::env::current_dir().unwrap().into_os_string().into_string().unwrap();
         match self {
-            Self::Classic {promptchar, color, text_color, double} => {
+            Self::Classic {promptchar, color, text_color, auto_suggest_color, double} => {
                 if current_dir == std::env::var("HOME").unwrap() {
                     current_dir = String::from("~");
                 }
